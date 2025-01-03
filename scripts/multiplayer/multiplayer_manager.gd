@@ -60,9 +60,7 @@ func join_as_player_2(uname, ip):
 func _on_connected_to_server():
 	print("Connected to server, sending username " + username)
 	_send_username_to_server()
-	
-	#for player in _players_spawn_node.get_children():
-		#player.get_node("AudioManager").setupAudio()
+
 
 func _add_player_to_game(id):
 	print("Player %s joined the game!" % id)
@@ -79,19 +77,10 @@ func _add_player_to_game(id):
 	player_to_add.get_node("AudioManager").setupAudio(id)
 	
 	await get_tree().create_timer(1.0).timeout
-	_setup_audio_for_new_player.rpc(id)
-	_setup_audio_for_existing_players.rpc_id(id)
-	#for p in _players_spawn_node.get_children():
-		#if p.has_node("AudioManager"):
-			#p.get_node("AudioManager").set_multiplayer_authority(id)
-			## Notify new player about existing player, including self
-			#_setup_audio_for_existing_player.rpc_id(id, str(p.name))
-			#
-			## Notify existing players about new player
-			#_setup_audio_for_new_player.rpc_id(int(str(p.name)), id)
+	if id != multiplayer.get_unique_id():
+		_setup_audio_for_new_player.rpc(id)
+		_setup_audio_for_existing_players.rpc_id(id)
 
-	#rpc_id(id, "_setup_audio_remote", id)
-	#_setup_audio_remote.rpc(id)
 
 func _del_player(id):
 	print("Player %s left the game!" % id)
@@ -114,8 +103,6 @@ func _set_username(id, uname):
 		plr.username = uname
 		
 		_update_usernames.rpc(players)
-		#for p in _players_spawn_node.get_children():
-			#_update_usernames.rpc_id(str(p.name).to_int(), players)
 	
 func _send_username_to_server():
 	_set_username.rpc_id(1, multiplayer.get_unique_id(), username)
